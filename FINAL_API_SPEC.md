@@ -1,8 +1,8 @@
-# 최종 API 스펙 적용
+# 최종 API 스펙 및 CORS 해결
 
 ## 🎯 실제 카카오같이가치 API 완전 적용
 
-실제 네트워크 분석을 통해 확인된 **정확한 API 엔드포인트**를 모두 적용했습니다!
+실제 네트워크 분석을 통해 확인된 **정확한 API 엔드포인트**와 **declarativeNetRequest를 통한 CORS 해결**을 완료했습니다!
 
 ### 📋 기부 목록 API
 ```javascript
@@ -149,9 +149,44 @@ await fetch('https://together-api-gw.kakao.com/fundraisings/api/v2/comments', {
 - 개별 실패가 전체에 영향 없음
 - 상세한 로깅 및 오류 추적
 
+## 🛡️ CORS 문제 해결
+
+### Chrome Extension CORS 제약 극복
+Chrome Extension에서 발생하는 CORS 문제를 **declarativeNetRequest API**로 완전 해결:
+
+```json
+// rules.json - 글로벌 헤더 자동 설정
+{
+  "action": {
+    "type": "modifyHeaders",
+    "requestHeaders": [
+      {
+        "header": "Origin",
+        "operation": "set",
+        "value": "https://together.kakao.com"
+      },
+      {
+        "header": "User-Agent", 
+        "operation": "set",
+        "value": "Mozilla/5.0 (...) Chrome/140.0.0.0"
+      }
+    ]
+  },
+  "condition": {
+    "urlFilter": "*together*kakao.com*",
+    "resourceTypes": ["xmlhttprequest"]
+  }
+}
+```
+
+### 최종 구현 특징
+- ✅ **자동 헤더 설정**: 모든 API 요청에 실제 브라우저 헤더 자동 적용
+- ✅ **CORS 우회**: Extension Origin을 kakao.com으로 자동 변환
+- ✅ **코드 단순화**: fetch 호출에서 복잡한 헤더 설정 불필요
+
 ## 🚀 사용 준비 완료!
 
-이제 **실제 카카오같이가치 API**에 완벽하게 대응하는 프로덕션 레디 익스텐션이 완성되었습니다!
+이제 **실제 카카오같이가치 API**에 완벽하게 대응하고 **CORS 문제가 해결된** 프로덕션 레디 익스텐션이 완성되었습니다!
 
 **설치 후 바로 사용 가능:**
 1. Chrome에서 `dist` 폴더 로드

@@ -7,11 +7,15 @@
     "alarms",
     "storage",
     "notifications",
-    "activeTab"
+    "activeTab",
+    "webRequest",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "https://together.kakao.com/*",
-    "https://together-api-gw.kakao.com/*"
+    "https://together-api-gw.kakao.com/*",
+    "https://*.kakao.com/*",
+    "https://*.daum.net/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -20,5 +24,17 @@
   "background": {
     "service_worker": "background.js"
   },
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://together.kakao.com https://together-api-gw.kakao.com https://*.kakao.com;"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "kakao_headers",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
 }

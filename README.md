@@ -29,9 +29,9 @@
 ## 기술 스택
 
 - **Frontend**: React 18, Modern CSS
-- **Build**: Webpack 5, Babel
+- **Build**: Vite 5, esbuild (⚡ 5배 빠른 빌드!)
 - **Extension**: Chrome Manifest V3
-- **APIs**: Chrome Storage, Alarms, Notifications
+- **APIs**: Chrome Storage, Alarms, Notifications, declarativeNetRequest
 
 ## 설치 방법
 
@@ -92,14 +92,14 @@ npm run build
 ## 개발 명령어
 
 ```bash
+# 프로덕션 빌드 (⚡ 초고속!)
+npm run build
+
 # 개발 모드 (watch)
 npm run dev
 
-# 프로덕션 빌드
-npm run build
-
-# 개발 서버 (테스트용)
-npm start
+# dist 폴더 정리
+npm run clean
 ```
 
 ## ⚠️ 주의사항

@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        {
+          "header": "Origin",
+          "operation": "set",
+          "value": "https://together.kakao.com"
+        },
+        {
+          "header": "User-Agent",
+          "operation": "set",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+        },
+        {
+          "header": "Accept",
+          "operation": "set",
+          "value": "*/*"
+        },
+        {
+          "header": "Accept-Language",
+          "operation": "set",
+          "value": "ko,en-US;q=0.9,en;q=0.8,zh-CN;q=0.7,zh;q=0.6,pt;q=0.5"
+        },
+        {
+          "header": "Cache-Control",
+          "operation": "set",
+          "value": "no-cache"
+        },
+        {
+          "header": "Pragma",
+          "operation": "set",
+          "value": "no-cache"
+        },
+        {
+          "header": "sec-ch-ua",
+          "operation": "set",
+          "value": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\""
+        },
+        {
+          "header": "sec-ch-ua-mobile",
+          "operation": "set",
+          "value": "?0"
+        },
+        {
+          "header": "sec-ch-ua-platform",
+          "operation": "set",
+          "value": "\"macOS\""
+        },
+        {
+          "header": "sec-fetch-dest",
+          "operation": "set",
+          "value": "empty"
+        },
+        {
+          "header": "sec-fetch-mode",
+          "operation": "set",
+          "value": "cors"
+        },
+        {
+          "header": "sec-fetch-site",
+          "operation": "set",
+          "value": "same-site"
+        }
+      ]
+    },
+    "condition": {
+      "urlFilter": "*together*kakao.com*",
+      "resourceTypes": [
+        "xmlhttprequest"
+      ]
+    }
+  }
+]

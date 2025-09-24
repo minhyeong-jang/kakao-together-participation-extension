@@ -9,14 +9,13 @@ ls dist/
 # 출력 예상: background.js, manifest.json, options.html, popup.html, popup.js, options.js
 ```
 
-### 2단계: 아이콘 추가 (선택사항)
-1. `create-icons.html` 파일을 브라우저에서 열기
-2. 자동으로 다운로드되는 아이콘 파일들을 `dist/icons/` 폴더에 저장
-3. 또는 원하는 아이콘 이미지를 다음 이름으로 저장:
-   - `icon16.png` (16x16px)
-   - `icon32.png` (32x32px) 
-   - `icon48.png` (48x48px)
-   - `icon128.png` (128x128px)
+### 2단계: 빌드 완료 확인
+빌드가 완료되면 `dist` 폴더에 다음 파일들이 있는지 확인:
+- `manifest.json` - 익스텐션 설정
+- `rules.json` - CORS 해결을 위한 헤더 규칙  
+- `background.js` - 메인 로직
+- `popup.html`, `popup.js` - 팝업 UI
+- `options.html`, `options.js` - 설정 페이지
 
 ### 3단계: Chrome 익스텐션 설치
 1. **Chrome 브라우저 열기**
@@ -26,7 +25,7 @@ ls dist/
 5. **dist 폴더 선택** (프로젝트 루트의 dist 폴더)
 6. **"폴더 선택" 클릭**
 
-### 4단계: 익스텐션 확인
+### 4단계: 익스텐션 확인 및 권한 승인
 1. Chrome 툴바에 익스텐션 아이콘이 나타나는지 확인
 2. 아이콘 클릭하여 팝업이 정상 작동하는지 테스트
 3. "설정" 버튼으로 옵션 페이지 접근 확인

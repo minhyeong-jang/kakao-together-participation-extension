@@ -21,6 +21,11 @@ function chromeExtensionPlugin() {
       const manifestDest = resolve(distDir, 'manifest.json')
       copyFileSync(manifestSrc, manifestDest)
 
+      // rules.json 복사
+      const rulesSrc = resolve(process.cwd(), 'rules.json')
+      const rulesDest = resolve(distDir, 'rules.json')
+      copyFileSync(rulesSrc, rulesDest)
+
       // HTML 파일들을 루트로 이동
       const popupHtmlSrc = resolve(distDir, 'src/popup/popup.html')
       const optionsHtmlSrc = resolve(distDir, 'src/options/options.html')

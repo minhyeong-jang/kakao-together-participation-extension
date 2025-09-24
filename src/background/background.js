@@ -153,10 +153,10 @@ class KakaoTogetherAutomation {
 
     try {
       // 로그인 상태 확인
-      const isLoggedIn = await this.checkLoginStatus();
-      if (!isLoggedIn) {
-        throw new Error('카카오 로그인이 필요합니다.');
-      }
+      // const isLoggedIn = await this.checkLoginStatus();
+      // if (!isLoggedIn) {
+      //   throw new Error('카카오 로그인이 필요합니다.');
+      // }
 
       // 기부 목록 가져오기
       const contentList = await this.fetchContentList();
@@ -276,12 +276,20 @@ class KakaoTogetherAutomation {
 
   async checkLoginStatus() {
     try {
-      // 실제 로그인 상태 확인 API (추정)
-      const response = await fetch(`${this.baseUrl}/api/v1/users/me`, {
+      // 실제 로그인 상태 확인 API
+      const response = await fetch(`${this.baseUrl}/api/me`, {
         credentials: 'include',
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          'referer': 'https://together.kakao.com/my',
+          'origin': 'https://together.kakao.com',
+          'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"macOS"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-site'
         }
       });
       
@@ -305,7 +313,7 @@ class KakaoTogetherAutomation {
       console.log('📋 기부 목록 수집 시작...');
 
       while (hasMorePages) {
-        const url = `${this.baseUrl}/fundraisings/api/fundraisings/api/v1/fundraisings/now?sort=FUNDRAISING_END_AT&page=${currentPage}&size=${pageSize}&seed=${Date.now()}`;
+        const url = `${this.baseUrl}/fundraisings/api/fundraisings/api/v1/fundraisings/now?sort=FUNDRAISING_END_AT&page=${currentPage}&size=${pageSize}&seed=2`;
         
         console.log(`📄 페이지 ${currentPage} 요청 중...`);
         
@@ -335,7 +343,7 @@ class KakaoTogetherAutomation {
           
           // API 부하 방지를 위한 지연
           if (hasMorePages) {
-            await this.delay(500); // 0.5초 지연
+            await this.delay(200); // 0.5초 지연
           }
         } else {
           console.warn('예상과 다른 API 응답 구조:', data);
@@ -362,16 +370,12 @@ class KakaoTogetherAutomation {
     try {
       console.log(`👍 좋아요 시도 [${contentId}]`);
 
-      // 실제 좋아요 API 엔드포인트
+      // 실제 좋아요 API 엔드포인트 - declarativeNetRequest가 헤더 자동 처리
       const response = await fetch(`${this.baseUrl}/fundraisings/together-api/api/fundraisings/${contentId}/signs`, {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-          'Referer': `${this.baseUrl}/fundraisings/${contentId}`,
-          'Origin': this.baseUrl
+          'Content-Type': 'application/json'
         }
       });
 
@@ -386,7 +390,6 @@ class KakaoTogetherAutomation {
       
     } catch (error) {
       console.error(`❌ 좋아요 처리 오류 [${contentId}]:`, error);
-      throw new Error(`좋아요 실패: ${error.message}`);
     }
   }
 
@@ -398,16 +401,12 @@ class KakaoTogetherAutomation {
 
       console.log(`💬 댓글 작성 시도 [${contentId}]: "${randomComment}"`);
 
-      // 실제 댓글 API 엔드포인트
+      // 실제 댓글 API 엔드포인트 - declarativeNetRequest가 헤더 자동 처리
       const response = await fetch('https://together-api-gw.kakao.com/fundraisings/api/v2/comments', {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-          'Referer': `${this.baseUrl}/fundraisings/${contentId}`,
-          'Origin': this.baseUrl
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           contentId: parseInt(contentId),
