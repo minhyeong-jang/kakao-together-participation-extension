@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "카카오같이가치 자동 참여 익스텐션",
+  "version": "1.0.0",
+  "description": "카카오같이가치 플랫폼의 자동 좋아요 및 댓글 참여로 사회적 기여를 극대화하는 크롬 익스텐션",
+  "permissions": [
+    "alarms",
+    "storage",
+    "notifications",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://together.kakao.com/*",
+    "https://together-api-gw.kakao.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "카카오같이가치 자동 참여"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html"
+}

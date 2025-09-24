@@ -1,0 +1,31 @@
+{
+  "name": "kakao-together-participation-extension",
+  "version": "1.0.0",
+  "description": "카카오 함께하기 참여를 위한 크롬 익스텐션",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "preview": "vite preview",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.1"
+  },
+  "keywords": [
+    "chrome-extension",
+    "kakao",
+    "react",
+    "vite"
+  ],
+  "author": "",
+  "license": "MIT"
+}
