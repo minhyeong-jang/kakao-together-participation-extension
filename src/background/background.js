@@ -22,7 +22,8 @@ class KakaoTogetherAutomation {
 
     // 알람 이벤트 리스너
     chrome.alarms.onAlarm.addListener((alarm) => {
-      if (alarm.name === 'kakao-together-daily') {
+      if (alarm.name === 'kakao-together-6hours') {
+        console.log('⏰ 6시간 주기 알람 실행');
         this.executeAutomation();
       }
     });
@@ -59,19 +60,12 @@ class KakaoTogetherAutomation {
   }
 
   setupAlarm() {
-    // 매일 오전 9시에 실행되도록 설정 (사용자가 설정 가능하도록 추후 확장 예정)
-    chrome.alarms.create('kakao-together-daily', {
-      when: this.getNextExecutionTime(),
-      periodInMinutes: 24 * 60 // 24시간마다 반복
+    // 6시간마다 실행되도록 설정
+    chrome.alarms.create('kakao-together-6hours', {
+      when: Date.now() + 1000, // 1초 후 첫 실행 (테스트용)
+      periodInMinutes: 6 * 60 // 6시간마다 반복
     });
-  }
-
-  getNextExecutionTime() {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(9, 0, 0, 0); // 오전 9시로 설정
-    return tomorrow.getTime();
+    console.log('⏰ 알람 설정 완료: 6시간마다 자동 실행');
   }
 
   async handleMessage(request, sender, sendResponse) {
@@ -164,33 +158,25 @@ class KakaoTogetherAutomation {
         throw new Error('기부 목록을 가져올 수 없습니다.');
       }
 
-      console.log(`📊 총 ${contentList.length}개 기부 항목 발견`);
+      console.log(`📊 수집된 신규 항목: ${contentList.length}개`);
 
-      // 이미 참여한 항목 확인
-      const { participatedContentIds } = await chrome.storage.local.get('participatedContentIds');
-      const participated = new Set(participatedContentIds || []);
-
-      console.log(`📝 이미 참여한 항목: ${participated.size}개`);
-
-      // 새로운 항목들 필터링 (id 기반)
+      // STATUS_FUNDING인 항목만 필터링 (중복 체크는 이미 fetchContentList에서 완료)
       const newContents = contentList.filter(content => {
-        // STATUS_FUNDING인 항목만 처리
-        if (content.status !== 'STATUS_FUNDING') {
-          return false;
-        }
-        
-        // 이미 참여한 항목 제외
-        return !participated.has(content.id);
+        return content.status === 'STATUS_FUNDING';
       });
 
-      console.log(`🎯 새로 참여할 항목: ${newContents.length}개`);
+      console.log(`🎯 처리 대상 항목: ${newContents.length}개 (STATUS_FUNDING)`);
 
       if (newContents.length === 0) {
-        console.log('✅ 모든 항목에 이미 참여했습니다.');
+        console.log('✅ 처리할 새로운 항목이 없습니다.');
         result.success = true;
-        result.message = '모든 기부 항목에 이미 참여했습니다.';
+        result.message = '처리할 새로운 기부 항목이 없습니다.';
         return result;
       }
+
+      // 참여 기록 저장을 위한 Set 준비
+      const { participatedContentIds } = await chrome.storage.local.get('participatedContentIds');
+      const participated = new Set(participatedContentIds || []);
       
       // 새로운 항목들에 대해 참여 처리
       for (const content of newContents) {
@@ -310,10 +296,15 @@ class KakaoTogetherAutomation {
       let hasMorePages = true;
       const pageSize = 10; // API 기본 사이즈
 
-      console.log('📋 기부 목록 수집 시작...');
+      // 이미 참여한 항목 ID 목록 미리 로드 (최적화를 위해)
+      const { participatedContentIds } = await chrome.storage.local.get('participatedContentIds');
+      const participatedSet = new Set(participatedContentIds || []);
+
+      console.log('📋 기부 목록 수집 시작 (최신순 정렬)...');
+      console.log(`📝 이미 참여한 항목: ${participatedSet.size}개`);
 
       while (hasMorePages) {
-        const url = `${this.baseUrl}/fundraisings/api/fundraisings/api/v1/fundraisings/now?sort=FUNDRAISING_END_AT&page=${currentPage}&size=${pageSize}&seed=2`;
+        const url = `${this.baseUrl}/fundraisings/api/fundraisings/api/v1/fundraisings/now?sort=FUNDRAISING_START_AT&page=${currentPage}&size=${pageSize}&seed=2`;
         
         console.log(`📄 페이지 ${currentPage} 요청 중...`);
         
@@ -333,17 +324,35 @@ class KakaoTogetherAutomation {
         
         // 실제 API 응답 구조에 맞춰 처리
         if (data.content && Array.isArray(data.content)) {
-          allContent.push(...data.content);
+          let foundOldContent = false;
+          
+          // 현재 페이지의 항목들을 확인
+          for (const content of data.content) {
+            if (participatedSet.has(content.id)) {
+              console.log(`🛑 이미 처리한 항목 발견 [${content.id}]: ${content.title}`);
+              console.log(`⚡ 최적화: 이후 항목들은 모두 처리했다고 판단, 수집 중단`);
+              foundOldContent = true;
+              break;
+            }
+            allContent.push(content);
+          }
+          
+          // 이미 처리한 항목을 만났으면 수집 중단 (최적화)
+          if (foundOldContent) {
+            hasMorePages = false;
+            console.log(`✅ 최적화된 수집 완료: ${allContent.length}개 새 항목 발견`);
+            break;
+          }
           
           // 페이징 정보 확인
           hasMorePages = !data.last && currentPage < data.totalPages;
           currentPage++;
           
-          console.log(`✅ 페이지 ${currentPage - 1}: ${data.content.length}개 항목 수집 (전체: ${allContent.length}/${data.totalElement})`);
+          console.log(`✅ 페이지 ${currentPage - 1}: ${data.content.length}개 항목 수집 (신규: ${allContent.length}개)`);
           
           // API 부하 방지를 위한 지연
           if (hasMorePages) {
-            await this.delay(200); // 0.5초 지연
+            await this.delay(200);
           }
         } else {
           console.warn('예상과 다른 API 응답 구조:', data);
@@ -357,7 +366,7 @@ class KakaoTogetherAutomation {
         }
       }
 
-      console.log(`🎉 총 ${allContent.length}개 기부 항목 수집 완료`);
+      console.log(`🎉 총 ${allContent.length}개 신규 기부 항목 수집 완료`);
       return allContent;
       
     } catch (error) {
