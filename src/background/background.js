@@ -292,7 +292,7 @@ class KakaoTogetherAutomation {
   async fetchContentList() {
     try {
       const allContent = [];
-      let currentPage = 1;
+      let currentPage = 0;
       let hasMorePages = true;
       const pageSize = 10; // API 기본 사이즈
 
